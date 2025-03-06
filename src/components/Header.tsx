@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   HStack,
@@ -13,8 +14,10 @@ import {
 import { FaAirbnb, FaMoon, FaSun } from "react-icons/fa";
 import LoginModal from "./LoginModal";
 import SignUpModal from "./SignUpModal";
+import useUser from "../lib/useUser";
 
 export default function Header() {
+  const { userLoading, isLoggedIn, user } = useUser();
   const {
     isOpen: isLoginOpen,
     onClose: onLoginClose,
@@ -48,12 +51,20 @@ export default function Header() {
           aria-label="Toggle dark mode"
           icon={<Icon />}
         ></IconButton>
-        <Button onClick={onLoginOpen}>Log In</Button>
-        <LightMode>
-          <Button onClick={onSignUpOpen} colorScheme="red">
-            Sign Up
-          </Button>
-        </LightMode>
+        {!userLoading ? (
+          !isLoggedIn ? (
+            <>
+              <Button onClick={onLoginOpen}>Log In</Button>
+              <LightMode>
+                <Button onClick={onSignUpOpen} colorScheme="red">
+                  Sign Up
+                </Button>
+              </LightMode>
+            </>
+          ) : (
+            <Avatar name={user.name} src={user.avatar} size={"md"} />
+          )
+        ) : null}
       </HStack>
       <LoginModal isOpen={isLoginOpen} onClose={onLoginClose} />
       <SignUpModal isOpen={isSignUpOpen} onClose={onSignUpClose} />

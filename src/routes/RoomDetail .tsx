@@ -1,15 +1,18 @@
-import { useQueries } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { getRoom } from "../api";
+import { getRoom, getRoomReviews } from "../api";
 import { useQuery } from "@tanstack/react-query";
 import { IRoomDetail } from "../types";
 import {
+  Avatar,
   Box,
   Grid,
   GridItem,
   Heading,
+  HStack,
   Image,
   Skeleton,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 
 export default function RoomDetail() {
@@ -19,10 +22,15 @@ export default function RoomDetail() {
     queryKey: [`rooms`, roomPk],
     queryFn: getRoom,
   });
+  const { reviews } = useParams();
+  const { data: reviewsDara, isLoading: isReviewsLoading } = useQuery({
+    queryKey: [`rooms`, roomPk, `reviews`, reviews],
+    queryFn: getRoomReviews,
+  });
   //console.log(data); -> reactdevtool will do this
   return (
     <Box marginTop={7} px={{ base: 8, lg: 10 }}>
-      <Skeleton height={"43px"} width="25%" isLoaded={!isLoading}>
+      <Skeleton height={"43px"} width="50%" isLoaded={!isLoading}>
         <Heading>{data?.name}</Heading>
       </Skeleton>
       <Grid
@@ -52,6 +60,31 @@ export default function RoomDetail() {
           </GridItem>
         ))}
       </Grid>
+      <HStack justifyContent={"space-between"} mt={10} w={"50%"}>
+        <VStack alignItems={"flex-start"}>
+          <Skeleton isLoaded={!isLoading} height={"30px"}>
+            <Heading fontSize={"2xl"}>
+              House hosted by {data?.owner.name}
+            </Heading>
+          </Skeleton>
+          <Skeleton isLoaded={!isLoading} height={"30px"}>
+            <HStack justifyContent={"flex-start"} w={"100%"}>
+              <Text>
+                {data?.toilets} bath{data?.toilets == 1 ? "" : "s"}
+              </Text>
+              <Text>•</Text>
+              <Text>
+                {data?.rooms} room{data?.rooms == 1 ? "" : "s"}
+              </Text>
+            </HStack>
+          </Skeleton>
+        </VStack>
+        <Avatar
+          name={data?.owner.name}
+          size={"md"}
+          src={data?.owner.avatar}
+        ></Avatar>
+      </HStack>
     </Box>
   );
 }
